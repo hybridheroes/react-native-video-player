@@ -331,6 +331,20 @@ export default class VideoPlayer extends Component {
     this.showControls();
   }
 
+  play() {
+    if (this.props.onStart) {
+      this.props.onStart();
+    }
+
+    this.setState(state => ({
+      isPlaying: true,
+      isStarted: true,
+      progress: state.progress === 1 ? 0 : state.progress,
+    }));
+
+    this.hideControls();
+  }
+
   resume() {
     this.setState({
       isPlaying: true,
