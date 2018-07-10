@@ -177,14 +177,9 @@ export default class VideoPlayer extends Component {
     }
 
     this.setState({ progress: 1 });
-
+    this.player.seek(0);
     if (!this.props.loop) {
-      this.setState(
-        { isPlaying: false },
-        () => this.player.seek(0)
-      );
-    } else {
-      this.player.seek(0);
+      this.setState({ isPlaying: false } );
     }
   }
 
