@@ -353,7 +353,7 @@ export default class VideoPlayer extends Component {
         style={[styles.playButton, customStyles.playButton]}
         onPress={this.onStartPress}
       >
-      <Image source={require('./play-icon.png')} style={{height: 42, width: 42}} />
+      <Image source={require('./play-icon.png')} style={customStyles.playArrow} name="play-arrow" />
        {/*  <Icon style={[styles.playArrow, customStyles.playArrow]} name="play-arrow" size={42} /> */}
       </TouchableOpacity>
     );
