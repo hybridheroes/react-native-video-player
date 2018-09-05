@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Image, ImageBackground, Platform, StyleSheet, TouchableOpacity, View, ViewPropTypes } from 'react-native';
+import { Image, ImageBackground, NetInfo, Platform, StyleSheet, TouchableOpacity, View, ViewPropTypes } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video'; // eslint-disable-line
 
@@ -140,18 +140,52 @@ export default class VideoPlayer extends Component {
     });
   }
 
+  async checkConnectivity() {
+    return new Promise((resolve, reject) => {
+      // NetInfo requires to be called 2 times on iOS
+      // before returning the correct info
+      // https://facebook.github.io/react-native/docs/netinfo.html
+      if (Platform.OS === 'ios') {
+        NetInfo.getConnectionInfo();
+        const handleFirstConnectivityChange = connectionInfo => {
+          // Correct one on iOS
+          NetInfo.removeEventListener(
+            'connectionChange',
+            handleFirstConnectivityChange
+          );
+          connectionInfo.type !== 'none' ? resolve() : reject();
+        };
+        NetInfo.addEventListener(
+          'connectionChange',
+          handleFirstConnectivityChange
+        );
+      } else {
+        NetInfo.getConnectionInfo().then(connectionInfo => {
+          connectionInfo.type !== 'none' ? resolve() : reject();
+        });
+      }
+    });
+  }
+
   onStartPress() {
-    if (this.props.onStart) {
-      this.props.onStart();
-    }
-
-    this.setState(state => ({
-      isPlaying: true,
-      isStarted: true,
-      progress: state.progress === 1 ? 0 : state.progress,
-    }));
-
-    this.hideControls();
+    this.checkConnectivity()
+      .then(() => {
+        if (this.props.onStart) {
+          this.props.onStart(true);
+        }
+        this.setState(state => ({
+          isPlaying: true,
+          isStarted: true,
+          progress: state.progress === 1 ? 0 : state.progress
+        }));
+    
+        this.hideControls();
+      })
+      .catch(() => {
+        if (this.props.onStart) {
+          this.props.onStart(false);
+        }
+      });
   }
 
   onProgress(event) {
