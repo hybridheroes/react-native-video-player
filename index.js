@@ -92,6 +92,7 @@ export default class VideoPlayer extends Component {
     this.state = {
       isStarted: props.autoplay,
       isPlaying: props.autoplay,
+      isLoading: false,
       width: 200,
       progress: 0,
       isMuted: props.defaultMuted,
@@ -175,6 +176,7 @@ export default class VideoPlayer extends Component {
         }
         this.setState(state => ({
           isPlaying: true,
+          isLoading: true,
           isStarted: true,
           progress: state.progress === 1 ? 0 : state.progress
         }));
@@ -217,6 +219,7 @@ export default class VideoPlayer extends Component {
   }
 
   onLoad(event) {
+    this.setState({ isLoading: false });
     if (this.props.onLoad) {
       this.props.onLoad(event);
     }
@@ -528,18 +531,21 @@ export default class VideoPlayer extends Component {
             { marginTop: -this.getSizeStyles().height },
           ]}
         >
-          <TouchableOpacity
-            style={styles.overlayButton}
-            onPress={() => {
-              this.showControls();
-              if (pauseOnPress)
-                this.onPlayPress();
-            }}
-            onLongPress={() => {
-              if (fullScreenOnLongPress && Platform.OS !== 'android')
-                this.onToggleFullScreen();
-            }}
-          />
+        {this.state.isLoading && this.props.customSpinner ? (
+            this.props.customSpinner
+          ) : (
+            <TouchableOpacity
+              style={styles.overlayButton}
+              onPress={() => {
+                this.showControls();
+                if (pauseOnPress) this.onPlayPress();
+              }}
+              onLongPress={() => {
+                if (fullScreenOnLongPress && Platform.OS !== "android")
+                  this.onToggleFullScreen();
+              }}
+            />
+          )}
         </View>
         {((!this.state.isPlaying) || this.state.isControlsVisible)
           ? this.renderControls() : this.renderSeekBar(true)}
