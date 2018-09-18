@@ -99,6 +99,7 @@ export default class VideoPlayer extends Component {
       isControlsVisible: !props.hideControlsOnStart,
       duration: 0,
       isSeeking: false,
+      currentTime: 0
     };
 
     this.seekBarWidth = 200;
@@ -189,8 +190,16 @@ export default class VideoPlayer extends Component {
         }
       });
   }
+  onBuffering(event) {
+    if (event.currentTime === this.state.currentTime) {
+      this.setState({ isLoading: true });
+    } else {
+      this.setState({ currentTime: event.currentTime, isLoading: false });
+    }
+  }
 
   onProgress(event) {
+    this.onBuffering(event);
     if (this.state.isSeeking) {
       return;
     }
